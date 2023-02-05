@@ -100,3 +100,91 @@ if __name__ == '__main__':
         elif choice == 11:
             print('*** Thanks for using. Please leave ***')
             exit(0)
+from Book import Book
+from datetime import date, timedelta
+
+class Library:
+    def __init__(self):
+        self.books = {}
+        self.books_issued = {}
+
+    #TODO: Update issued number of copies
+    def add_book(self, name, author, genre, total_copies = 1, ID = None):
+        self.books[len(self.books) + 1] = [Book(len(self.books) + 1, name, author, genre, total_copies), 0]
+
+    def issue_book(self, book_id, emp_id, issue_date = date.today()):
+        self.books_issued[(book_id, emp_id)] = {
+            'issue_date': issue_date,
+            'expected_return_date': issue_date + timedelta(days = 15),
+            'is_returned': False
+        }
+
+    def return_book(self, book_id, emp_id, closure_cmts, emp_obj):
+        self.books_issued[(book_id, emp_id)]['return_date'] = date.today()
+        self.books_issued[(book_id, emp_id)]['closure_comments'] = closure_cmts
+        self.books_issued[(book_id, emp_id)]['is_returned'] = True
+        return_date = self.books_issued[(book_id, emp_id)]['return_date']
+        expected_date = self.books_issued[(book_id, emp_id)]['expected_return_date']
+        if return_date > expected_date:
+            dues = (return_date - expected_date).days * 10
+            self.books_issued[(book_id, emp_id)]['due'] = dues
+            emp_obj.pending_dues += dues
+    
+    def search_book_by_id(self, book_id):
+        if book_id not in self.books:
+            print('Book not found')
+            return
+        print('ID: {}\nName: {}\nAuthor: {}\nGenre: {}\nTotal copies: {}'.format(
+            book_id,
+            self.books[book_id][0].name,
+            self.books[book_id][0].author,
+            self.books[book_id][0].genre,
+            self.books[book_id][0].total_copies
+        ))
+
+    def search_book_by_name(self, book_name):
+        for book_id in self.books:
+            book_obj = self.books[book_id][0]
+            if book_name in book_obj.name:
+                print('ID: {}\nName: {}\nAuthor: {}\nGenre: {}\nTotal copies: {}'.format(
+                    book_obj.ID,
+                    book_obj.name,
+                    book_obj.author,
+                    book_obj.genre,
+                    book_obj.total_copies
+                ))
+                return
+        print('Book not found')
+
+    def list_books(self):
+        for book_id in self.books:
+            book_obj = self.books[book_id][0]
+            print('ID: {}\nName: {}\nAuthor: {}\nGenre: {}\nTotal copies: {}'.format(
+                    book_obj.ID,
+                    book_obj.name,
+                    book_obj.author,
+                    book_obj.genre,
+                    book_obj.total_copies
+                ))
+
+    def list_due_transactions(self):
+        for book_employee in self.books_issued:
+            if not self.books_issued[book_employee]['is_returned']:
+                print('Book ID: {}\nEmployee ID: {}\nIssue date: {}\nExpected return date: {}'.format(
+                    book_employee[0], book_employee[1],
+                    self.books_issued[book_employee]['issue_date'],
+                    self.books_issued[book_employee]['expected_return_date']))
+class Book:
+    def __init__(self, ID, name, author, genre, total_copies = 1):
+        self.ID = ID
+        self.name = name
+        self.author = author
+        self.genre = genre
+        self.total_copies = total_copies
+class Employee:
+    def __init__(self, ID, name, dept, email, pending_dues = 0):
+        self.ID = ID
+        self.name = name
+        self.dept = dept
+        self.email = email
+        self.pending_dues = pending_dues

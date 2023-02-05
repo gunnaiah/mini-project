@@ -1,0 +1,102 @@
+from Library import Library
+from Employee import Employee
+
+if __name__ == '__main__':
+    lib_obj = Library()
+    employee_list = {}
+    while True:
+        print('\n\n***************** MENU *****************\n')
+        print('1. Add book')
+        print('2. Search book')
+        print('3. Issue book')
+        print('4. Return book')
+        print('5. Reissue Book')
+        print('6. Pay for dues')
+        print('7. List available books')
+        print('8. List due transactions')
+        print('9. Add employee')
+        print('10. Display list of employee')
+        print('11. Exit')
+        choice = int(input("Enter your choice: "))
+
+        if choice == 1:
+            print('******** Add a book ********')
+            name = input('Enter the name of the book: ')
+            author = input('Enter the name of the author: ')
+            genre = input('Enter the genre: ')
+            total_copies = int(input('Enter the number of copies: '))
+            lib_obj.add_book(name, author, genre, total_copies)
+
+        elif choice == 2:
+            print('******** Search a book ********')
+            search_ch = int(input('Press 1 to enter book ID or press 2 to enter book name: '))
+            if search_ch == 1:
+                book_id = int(input('Enter book ID: '))
+                lib_obj.search_book_by_id(book_id)
+            else:
+                book_name = input('Enter book name: ')
+                lib_obj.search_book_by_name(book_name)
+
+        elif choice == 3:
+            print('******** Issue book ********')
+            book_id = int(input('Enter book ID: '))
+            emp_id = int(input('Enter employee ID: '))
+            lib_obj.issue_book(book_id, emp_id)
+
+        elif choice == 4:
+            print('******** Return a book ********')
+            book_id = int(input('Enter book ID: '))
+            emp_id = int(input('Enter employee ID: '))
+            closure_cmts = input('Enter closure comments: ')
+            lib_obj.return_book(book_id, emp_id, closure_cmts, employee_list[emp_id])
+
+        elif choice == 5:
+            print('******** Reissue a book ********')
+            book_id = int(input('Enter book ID: '))
+            emp_id = int(input('Enter employee ID: '))
+            lib_obj.return_book(book_id, emp_id, 'Reissuing book', employee_list[emp_id])
+            lib_obj.issue_book(book_id, emp_id)
+
+        elif choice == 6:
+            print('******** Pay pending dues ********')
+            emp_id = int(input('Enter the emp id: '))
+            if emp_id not in employee_list:
+                print('No such employee')
+            else:
+                emp_obj = employee_list[emp_id]
+                if emp_obj.pending_dues > 0:
+                    print('Paid Rs. {}'.format(emp_obj.pending_dues))
+                    emp_obj.pending_dues = 0
+                else:
+                    print('No pending dues for this employee')
+
+        elif choice == 7:
+            print('******** List all books ********')
+            lib_obj.list_books()
+
+        elif choice == 8:
+            print('******** List all due transactions ********')
+            lib_obj.list_due_transactions()
+
+        elif choice == 9:
+            print('******** Add new employee ********')
+            name = input('Enter the name of the employee: ')
+            dept = input('Enter the department: ')
+            email = input('Enter the email: ')
+            employee_list[len(employee_list)] = Employee(len(employee_list), name, dept, email)
+
+        elif choice == 10:
+            print('******** List all employees ********')
+            for employee_id in employee_list:
+                employee = employee_list[employee_id]
+                print('ID: {}\nName: {}\nDepartment: {}\nEmail: {}\nPending dues: {}'.format(
+                    employee.ID,
+                    employee.name,
+                    employee.dept,
+                    employee.email,
+                    employee.pending_dues
+                ))
+
+        elif choice == 11:
+            print('*** Thanks for using. Please leave ***')
+            exit(0)
